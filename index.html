@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minhaz Tic Tac Toe</title>
+    <style>
+        :root {
+            --primary-color: #6c5ce7;
+            --secondary-color: #a29bfe;
+            --dark-color: #2d3436;
+            --light-color: #f5f6fa;
+            --success-color: #00b894;
+            --danger-color: #d63031;
+            --warning-color: #fdcb6e;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--light-color);
+            color: var(--dark-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            background-color: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            text-align: center;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .setup {
+            margin-bottom: 20px;
+            background-color: var(--light-color);
+            padding: 15px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .input-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .input-group label {
+            font-weight: 600;
+            min-width: 80px;
+            text-align: right;
+        }
+
+        .input-group input {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 25px;
+            background-color: var(--light-color);
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .player {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 100px;
+        }
+
+        .player.active {
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .player-icon {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .score {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        .cell {
+            aspect-ratio: 1/1;
+            background-color: var(--light-color);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--dark-color);
+        }
+
+        .cell:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-3px);
+        }
+
+        .cell.x {
+            color: var(--primary-color);
+        }
+
+        .cell.o {
+            color: var(--success-color);
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-reset {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-reset:hover {
+            background-color: #5649c0;
+            transform: translateY(-2px);
+        }
+
+        .btn-new-game {
+            background-color: var(--success-color);
+            color: white;
+        }
+
+        .btn-new-game:hover {
+            background-color: #00a382;
+            transform: translateY(-2px);
+        }
+
+        .btn-start {
+            background-color: var(--warning-color);
+            color: var(--dark-color);
+        }
+
+        .btn-start:hover {
+            background-color: #e6b949;
+            transform: translateY(-2px);
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 100;
+        }
+
+        .modal.show {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 16px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            transform: translateY(-20px);
+            transition: transform 0.3s ease;
+        }
+
+        .modal.show .modal-content {
+            transform: translateY(0);
+        }
+
+        .modal h2 {
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+
+        .modal p {
+            margin-bottom: 25px;
+            font-size: 18px;
+        }
+
+        .btn-close {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
+        .btn-close:hover {
+            background-color: #c0392b;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 500px) {
+            .container {
+                padding: 20px;
+            }
+
+            .game-info,
+            .setup {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .input-group {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .input-group label {
+                text-align: left;
+            }
+
+            .input-group input {
+                width: 100%;
+            }
+
+            .controls {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Minhaz Tic Tac Toe</h1>
+
+        <div class="setup" id="setup">
+            <div class="input-group">
+                <label for="player1">Player X:</label>
+                <input type="text" id="player1" placeholder="Enter name for X" value="Player 1">
+            </div>
+            <div class="input-group">
+                <label for="player2">Player O:</label>
+                <input type="text" id="player2" placeholder="Enter name for O" value="Player 2">
+            </div>
+            <button class="btn-start" id="startGame">Start Game</button>
+        </div>
+
+        <div class="game-info hidden" id="gameInfo">
+            <div class="player player-1 active">
+                <div class="player-icon">X</div>
+                <div class="player-name" id="player1Name">Player 1</div>
+                <div class="score">0</div>
+            </div>
+            <div class="player player-2">
+                <div class="player-icon">O</div>
+                <div class="player-name" id="player2Name">Player 2</div>
+                <div class="score">0</div>
+            </div>
+        </div>
+
+        <div class="game-board hidden" id="gameBoard">
+            <div class="cell" data-index="0"></div>
+            <div class="cell" data-index="1"></div>
+            <div class="cell" data-index="2"></div>
+            <div class="cell" data-index="3"></div>
+            <div class="cell" data-index="4"></div>
+            <div class="cell" data-index="5"></div>
+            <div class="cell" data-index="6"></div>
+            <div class="cell" data-index="7"></div>
+            <div class="cell" data-index="8"></div>
+        </div>
+
+        <div class="controls hidden" id="gameControls">
+            <button class="btn-reset">Reset Round</button>
+            <button class="btn-new-game">New Game</button>
+        </div>
+    </div>
+
+    <div class="modal">
+        <div class="modal-content">
+            <h2>Game Over!</h2>
+            <p class="message">Player X wins!</p>
+            <button class="btn-close">Close</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Game elements
+            const setupSection = document.getElementById('setup');
+            const gameInfoSection = document.getElementById('gameInfo');
+            const gameBoardSection = document.getElementById('gameBoard');
+            const gameControlsSection = document.getElementById('gameControls');
+            const player1Input = document.getElementById('player1');
+            const player2Input = document.getElementById('player2');
+            const startGameBtn = document.getElementById('startGame');
+            const player1Name = document.getElementById('player1Name');
+            const player2Name = document.getElementById('player2Name');
+            const cells = document.querySelectorAll('.cell');
+            const player1 = document.querySelector('.player-1');
+            const player2 = document.querySelector('.player-2');
+            const score1 = document.querySelector('.player-1 .score');
+            const score2 = document.querySelector('.player-2 .score');
+            const resetBtn = document.querySelector('.btn-reset');
+            const newGameBtn = document.querySelector('.btn-new-game');
+            const modal = document.querySelector('.modal');
+            const modalMessage = document.querySelector('.modal .message');
+            const closeModalBtn = document.querySelector('.btn-close');
+
+            // Game state
+            let board = ['', '', '', '', '', '', '', '', ''];
+            let currentPlayer = 'X';
+            let gameActive = true;
+            let scores = { X: 0, O: 0 };
+            let playerNames = { X: 'Player 1', O: 'Player 2' };
+
+            // Winning combinations
+            const winningCombinations = [
+                [0, 1, 2], [3, 4, 5], [6, 7, 8], // rows
+                [0, 3, 6], [1, 4, 7], [2, 5, 8], // columns
+                [0, 4, 8], [2, 4, 6]             // diagonals
+            ];
+
+            // Start the game with player names
+            function startGame() {
+                const name1 = player1Input.value.trim() || 'Player 1';
+                const name2 = player2Input.value.trim() || 'Player 2';
+
+                playerNames = { X: name1, O: name2 };
+                player1Name.textContent = name1;
+                player2Name.textContent = name2;
+
+                // Hide setup, show game
+                setupSection.classList.add('hidden');
+                gameInfoSection.classList.remove('hidden');
+                gameBoardSection.classList.remove('hidden');
+                gameControlsSection.classList.remove('hidden');
+
+                initGame();
+            }
+
+            // Initialize the game
+            function initGame() {
+                board = ['', '', '', '', '', '', '', '', ''];
+                currentPlayer = 'X';
+                gameActive = true;
+
+                // Clear the board UI
+                cells.forEach(cell => {
+                    cell.textContent = '';
+                    cell.classList.remove('x', 'o');
+                });
+
+                // Set active player
+                player1.classList.add('active');
+                player2.classList.remove('active');
+            }
+
+            // Handle cell click
+            function handleCellClick(e) {
+                const clickedCell = e.target;
+                const clickedCellIndex = parseInt(clickedCell.getAttribute('data-index'));
+
+                // If cell is already filled or game is not active, ignore the click
+                if (board[clickedCellIndex] !== '' || !gameActive) return;
+
+                // Update the board and UI
+                board[clickedCellIndex] = currentPlayer;
+                clickedCell.textContent = currentPlayer;
+                clickedCell.classList.add(currentPlayer.toLowerCase());
+
+                // Check for win or draw
+                if (checkWin()) {
+                    endGame(false);
+                    return;
+                }
+
+                if (checkDraw()) {
+                    endGame(true);
+                    return;
+                }
+
+                // Switch player
+                switchPlayer();
+            }
+
+            // Check for a win
+            function checkWin() {
+                return winningCombinations.some(combination => {
+                    return combination.every(index => {
+                        return board[index] === currentPlayer;
+                    });
+                });
+            }
+
+            // Check for a draw
+            function checkDraw() {
+                return board.every(cell => cell !== '');
+            }
+
+            // Switch player
+            function switchPlayer() {
+                currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+
+                // Update active player UI
+                if (currentPlayer === 'X') {
+                    player1.classList.add('active');
+                    player2.classList.remove('active');
+                } else {
+                    player1.classList.remove('active');
+                    player2.classList.add('active');
+                }
+            }
+
+            // End the game
+            function endGame(draw) {
+                gameActive = false;
+
+                if (draw) {
+                    modalMessage.textContent = "It's a draw!";
+                } else {
+                    modalMessage.textContent = `${playerNames[currentPlayer]} (${currentPlayer}) wins!`;
+                    scores[currentPlayer]++;
+                    updateScores();
+                }
+
+                // Show modal
+                modal.classList.add('show');
+            }
+
+            // Update scores
+            function updateScores() {
+                score1.textContent = scores['X'];
+                score2.textContent = scores['O'];
+            }
+
+            // Reset the current round
+            function resetRound() {
+                initGame();
+            }
+
+            // Start a new game (reset scores and show setup)
+            function newGame() {
+                scores = { X: 0, O: 0 };
+                updateScores();
+
+                // Show setup, hide game
+                setupSection.classList.remove('hidden');
+                gameInfoSection.classList.add('hidden');
+                gameBoardSection.classList.add('hidden');
+                gameControlsSection.classList.add('hidden');
+            }
+
+            // Close modal
+            function closeModal() {
+                modal.classList.remove('show');
+            }
+
+            // Event listeners
+            startGameBtn.addEventListener('click', startGame);
+            cells.forEach(cell => cell.addEventListener('click', handleCellClick));
+            resetBtn.addEventListener('click', resetRound);
+            newGameBtn.addEventListener('click', newGame);
+            closeModalBtn.addEventListener('click', closeModal);
+
+            // Allow starting game with Enter key
+            player1Input.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') startGame();
+            });
+
+            player2Input.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') startGame();
+            });
+        });
+    </script>
+</body>
+
+</html>
